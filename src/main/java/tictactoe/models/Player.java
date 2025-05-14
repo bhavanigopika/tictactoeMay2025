@@ -41,6 +41,7 @@ public class Player {
         this.playerType = playerType;
     }
 
+    //if the next player is HUMAN in the player list , then this decideMove will call during run time - Here, polymorphism works here
     public Move decideMove(Board board) {
         //ask the player where do you want to move
         // It is not good to define scanner everytime. So, use at initially
@@ -51,6 +52,7 @@ public class Player {
 
         //return new Move(this, new Cell(row, col));
         //Move has player and cell -> cell and board are in the same path now
+        //pick the cell from the board itself
         Cell currentCell = board.getBoard().get(row).get(col);
         return new Move(this, currentCell);
     }
