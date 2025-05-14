@@ -14,12 +14,15 @@ public class Board {
     //here size is enough to initialize the attributes, no need board here
     public Board(int size) {
         this.size = size;
+        this.board = new ArrayList<>();//1D arraylist -[]
         //once get the size, then initialize the board like 3 * 3 size, the 9 cell should create
         for(int i = 0; i < size; i++){
-            this.board.add(new ArrayList<>()); //It creates say, 3 size... then 3 list [] [] [] will be created
+            this.board.add(new ArrayList<>()); //It creates say, 3 size... then 3 list []
+                                                                                    // []
+                                                                                    // [] will be created
             //in each list, create cell(row and column) like
             /*
-            [[[cell(0,0), cell(0,1), cell(0,2)],
+            [[cell(0,0), cell(0,1), cell(0,2)],
             [cell(1,0), cell(1,1), cell(1,2)]
             [cell(2,0), cell(2,1), cell(2,2)]]
             */
@@ -43,7 +46,7 @@ public class Board {
                 if(board.get(i).get(j).getCellState().equals(CellState.EMPTY)){
                     System.out.printf("|   |");
                 }else{
-                    System.out.printf("|  " + board.get(i).get(j).getPlayer().getPlayerSymbol() + " |");
+                    System.out.printf("| " + board.get(i).get(j).getPlayer().getPlayerSymbol() + " |");
                 }
             }
             System.out.println("\n");

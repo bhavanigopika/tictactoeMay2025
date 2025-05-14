@@ -13,12 +13,13 @@ import java.util.List;
 public class GameController {
     //client not to connect business logic(service layer) directly. So, creater layer in between called controller
     //Create/Start a Game now. How? Using Builder. Here using a lot of attributes and a lot of validation so, create GameBuilder
-    public Game startGame(int size, List<Player> playerList) throws InvalidGameConstructionParametersException, InvalidPlayerCountException {
+    public Game startGame(int size, List<Player> playerList, String winningStrategy) throws InvalidGameConstructionParametersException, InvalidPlayerCountException {
         try {
             return Game.getBuilder()
-                    .setBoard(new Board(size))
+                    .setSize(size)
                     .setPlayerList(playerList)
-                    .build(); //Here redline because of exceptions. It is not good idea to throw the exception to the client. use try-block
+                    .setGameWinningStrategy(winningStrategy)
+                    .build(); //Here red line because of exceptions. It is not good idea to throw the exception to the client. use try-block
         }
         catch(Exception e){
             System.out.println(e.getMessage());
@@ -39,5 +40,9 @@ public class GameController {
 
     public void executeGame(Game game) throws InvalidMoveException {//execute move means make next move
         game.makeNextMove(game);
+    }
+
+    public Player getWinner(Game game){
+        return game.getWinner();
     }
 }

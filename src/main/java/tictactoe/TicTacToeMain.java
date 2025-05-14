@@ -2,6 +2,7 @@ package tictactoe;
 
 import tictactoe.controllers.GameController;
 import tictactoe.exceptions.InvalidGameConstructionParametersException;
+import tictactoe.exceptions.InvalidMoveException;
 import tictactoe.exceptions.InvalidPlayerCountException;
 import tictactoe.models.Board;
 import tictactoe.models.Bot;
@@ -16,7 +17,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class TicTacToeMain {
-    public static void main(String[] args) throws InvalidGameConstructionParametersException, InvalidPlayerCountException {
+    public static void main(String[] args) throws InvalidGameConstructionParametersException, InvalidPlayerCountException, InvalidMoveException {
         //Client need not build it because this main class would get the details from client object
         /*
         Game game = Game.getBuilder()
@@ -71,7 +72,8 @@ public class TicTacToeMain {
 
         //Now, start the game
         GameController gameController = new GameController();
-        Game game = gameController.startGame(size, playerList);
+        String winningSTrategy = "OrderOne";
+        Game game = gameController.startGame(size, playerList, winningSTrategy);
 
         //start playing the game, it keeps on going
         //I want to check the gameStatus consistently
@@ -83,6 +85,15 @@ public class TicTacToeMain {
             gameController.executeGame(game);
 
         }
+        System.out.println("*************************** ");
+        System.out.println("Game has ended. Result was: ");
+        System.out.println("*************************** ");
 
+        if(game.getGameState().equals(GameState.ENDED)){
+            System.out.println("Winner is: " + gameController.getWinner(game).getPlayerName());
+            gameController.displayBoard(game);
+        }else {
+            System.out.println("Game is drawn");
+        }
     }
 }

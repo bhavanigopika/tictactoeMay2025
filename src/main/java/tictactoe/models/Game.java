@@ -3,7 +3,8 @@ package tictactoe.models;
 import tictactoe.exceptions.InvalidGameConstructionParametersException;
 import tictactoe.exceptions.InvalidMoveException;
 import tictactoe.exceptions.InvalidPlayerCountException;
-
+import tictactoe.factories.GameWinningStrategyFactory;
+import tictactoe.strategies.gamewinningstrategy.GameWinningStrategy;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,6 +15,7 @@ public class Game {
     private GameState gameState;
     private int nextPlayerIndex;
     private List<Move> moveList;
+    private GameWinningStrategy gameWinningStrategy;
 
     //default constructor which is private
     private Game(){
@@ -55,23 +57,31 @@ public class Game {
         this.moveList = moveList;
     }
 
+    public void setGameWinningStrategy(GameWinningStrategy gameWinningStrategy) {
+        this.gameWinningStrategy = gameWinningStrategy;
+    }
+
     //getters for game state
     public GameState getGameState() {
         return gameState;
     }
 
+    public Player getWinner() {
+        return winner;
+    }
+
     /***/
 
     public void displayBoard() {
-        board.displayBoard();
+        this.board.displayBoard();
     }
 
     public void makeNextMove(Game game) throws InvalidMoveException {
         //1) first pick the player to know whose turn it is, so get the index of the current player
-        //who tries to make the move -> in simple, we say ask the player to make the move
+        //who tries to make the move -> in simple, we say, ask the player to make the move...so, first get the index
         Player currentPlayerToMove = playerList.get(nextPlayerIndex);
 
-        System.out.println("It is " + currentPlayerToMove.getPlayerName() + "'s turn and index is " + currentPlayerToMove);
+        System.out.println("It is " + currentPlayerToMove.getPlayerName() + "'s turn and index is " + nextPlayerIndex);
         //check adjacent cell state, if cell is empty then make the move. For this we need row and column of the board to go to particular cell
 
         //2) now, let the player decide to move. The player who is going to decide the move then logic of deciding the move in Player class
@@ -121,10 +131,33 @@ public class Game {
         moveList.add(move) instead of moveList.add(finalMove)
         */
 
-        //7) Now, I am updating to the same cell
+        //7) Now, I am updating to the same cell. So, update in list of move
         moveList.add(move);
 
-        //8) check if this was a winning move
+        //8) next, check if this was a winning move, so strategyWinning comes here
+        if(this.gameWinningStrategy.checkWinner(board, move.getCell(), currentPlayerToMove)){
+            //if it is true, then players has won automatically set the game state
+            gameState = GameState.ENDED;
+            winner = currentPlayerToMove;
+        }else if(moveList.size() == board.getSize() * board.getSize()){ //list of the move(all moves)  is equal to n * n(board dimension) -> draw
+            gameState = GameState.DRAW;
+        }
+
+        //9) update the next player index
+        nextPlayerIndex = nextPlayerIndex + 1;
+        //here, let's say, we have 3 players(player p1,player p2,player p3). So, index is 3 (0, 1, 2) because of 3 players.
+        //So, player1(X), player2(O), player3(R)
+        //NextPlayerIndex = 0 -> p1 played at index 0.
+        //NextPlayerIndex = 1 -> p2 played at index 1.
+        //NextPlayerIndex = 2 -> p3 is playing at index 2.
+        //Currently, it is player p3's turn. p3 made a move and I say nextPlayerIndex = nextPlayerIndex + 1.
+        //So, NextPlayerIndex = 3 -> Do we have player p4 move at index = 4? NO.
+        //Whose move should it be next? Player p1. So, I do "mod" here. nextPlauerIndex = nextPlayerIndex % playerList.size()
+        //nextPlayerIndex = 3 playerList size = 3
+        //if 3 % 3 = 0. Then nextPlayerIndex = 0 whose corresponding player is player p1. Then player p1 will be the next move. So, I use this condition
+        //index - 0, 1, 2, 0, 1, 2 -> It is cyclic
+        nextPlayerIndex = nextPlayerIndex % playerList.size();
+
     }
     private boolean validateCurrentMove(Move move) {
         Cell currentCell = move.getCell();
@@ -143,13 +176,16 @@ public class Game {
     //steps for creating a builder -> 1) Create a subclass which is static (i.e) Builder
     public static class Builder {
         //we have to copy the attributes that we initialize in the Builder. Also, see, GameController because that only we want
-        private Board board;
+        private int size;
         private List<Player> playerList;
+        private GameWinningStrategy gameWinningStrategy;
 
+        //setters
+        /***/
         //Actually no need to get the board, playersList details. We have to set it. So add only setters
-        //set the board and return to the same Builder object (i.e) Builder class -> class is blueprint of idea or blueprint for creating the object
-        public Builder setBoard(Board board) {
-            this.board = board;
+        //set the size and return to the same Builder object (i.e) Builder class -> class is blueprint of idea or blueprint for creating the object
+         public Builder setSize(int size) {
+            this.size = size;
             return this;
         }
 
@@ -159,17 +195,23 @@ public class Game {
             return this;
         }
 
+        //set game winning strategy
+        public Builder setGameWinningStrategy(String winningStrategy) {
+            this.gameWinningStrategy = GameWinningStrategyFactory.getGameWinningStrategy(winningStrategy, this.size);
+            return this;
+        }
+        /***/
+
         private void validate() throws InvalidGameConstructionParametersException, InvalidPlayerCountException {
             //What are all validation?
             //1) Size of the board(Dimension should not be less than 3)
-            if (this.board.getSize() < 3) {
+            if (this.size < 3) {
                 throw new InvalidGameConstructionParametersException("The size of the board cannot be less than 3");
             }
             //2) players should be dimension - 1 (board size - 1)
-            if (this.playerList.size() != this.board.getSize() - 1) {
+            if (this.playerList.size() != this.size - 1) {
                 throw new InvalidPlayerCountException("The number of players in the game should be board size - 1");
             }
-
         }
 
         //we have build method -> build the particular object and return
@@ -180,7 +222,7 @@ public class Game {
             validate();
 
             Game game = new Game();
-            game.setBoard(board);
+            game.setBoard(new Board(size));
             game.setGameState(GameState.IN_PROGRESS);
             game.setMoveList(new ArrayList<>());//moves is empty arraylist right now
             //cannot predict winner right now, so don't set setWinner now as game.setWinner();
@@ -192,13 +234,22 @@ public class Game {
             game.setNextPlayerIndex(0);
             game.setPlayerList(playerList);
 
+            //game.setGameWinningStrategy(new OrderOneGameWinningStrategy(board.getSize()));
+            //now, can you also have it according to user input? -> like user able to pass which strategy able to use -> using Factory Design Pattern
+            //set the game winning strategy here
+            game.setGameWinningStrategy(this.gameWinningStrategy);
             return game;
 
         }
     }
 }
 
-
+/* 1.5 hours in machine coding
+Overview -> 2 mins
+Requirement Gathering -> 10 - 15 min
+Class Diagram and coding models -> 15 mins
+Time to complete code -> 1 hr
+ */
 
 
 
