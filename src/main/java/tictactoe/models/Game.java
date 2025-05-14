@@ -145,17 +145,19 @@ public class Game {
 
         //9) update the next player index
         nextPlayerIndex = nextPlayerIndex + 1;
-        //here, let's say, we have 3 players(player p1,player p2,player p3). So, index is 3 (0, 1, 2) because of 3 players.
-        //So, player1(X), player2(O), player3(R)
-        //NextPlayerIndex = 0 -> p1 played at index 0.
-        //NextPlayerIndex = 1 -> p2 played at index 1.
-        //NextPlayerIndex = 2 -> p3 is playing at index 2.
-        //Currently, it is player p3's turn. p3 made a move and I say nextPlayerIndex = nextPlayerIndex + 1.
-        //So, NextPlayerIndex = 3 -> Do we have player p4 move at index = 4? NO.
-        //Whose move should it be next? Player p1. So, I do "mod" here. nextPlauerIndex = nextPlayerIndex % playerList.size()
-        //nextPlayerIndex = 3 playerList size = 3
-        //if 3 % 3 = 0. Then nextPlayerIndex = 0 whose corresponding player is player p1. Then player p1 will be the next move. So, I use this condition
-        //index - 0, 1, 2, 0, 1, 2 -> It is cyclic
+        /*
+        here, let's say, we have 3 players(player p1, player p2, player p3) in 4 * 4 board. So, index is 3 (0, 1, 2) because of 3 players.
+        So, player1(X), player2(O), player3(R)
+        NextPlayerIndex = 0 -> p1 played at index 0.
+        NextPlayerIndex = 1 -> p2 played at index 1.
+        NextPlayerIndex = 2 -> p3 is playing at index 2.
+        Currently, it is player p3's turn. p3 made a move and I say nextPlayerIndex = nextPlayerIndex + 1.
+        So, NextPlayerIndex = 3 -> Do we have player p4 move at index = 4? NO.
+        Whose move should it be next? Player p1. So, I do "mod" here. nextPlauerIndex = nextPlayerIndex % playerList.size()
+        nextPlayerIndex = 3 playerList size = 3
+        if 3 % 3 = 0. Then nextPlayerIndex = 0 whose corresponding player is player p1. Then player p1 will be the next move. So, I use this condition
+        index - 0, 1, 2, 0, 1, 2 -> It is cyclic
+        */
         nextPlayerIndex = nextPlayerIndex % playerList.size();
 
     }
